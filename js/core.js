@@ -60,13 +60,21 @@ onOtp(({ code, channel, masked }) => { clearOtp(); toast(`<b>Демо-${channel 
 export function modal({ title, body, wide = false, onMount }) {
   const wrap = document.createElement('div'); wrap.className = 'modal-wrap';
   wrap.innerHTML = `<div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="modal-head"><h3>${esc(title)}</h3><button class="icon-btn" data-close aria-label="Закрити">✕</button></div><div class="modal-body">${body}</div></div>`;
-  const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); };
-  const onKey = e => { if (e.key === 'Escape') close(); };
+  const opener = document.activeElement; // після закриття повертаємо фокус туди, звідки відкрили
+  const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); if (opener && document.contains(opener)) opener.focus({ preventScroll: true }); };
+  const onKey = e => {
+    if (e.key === 'Escape') return close();
+    if (e.key !== 'Tab') return; // фокус не має виходити за межі вікна
+    const f = [...wrap.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null); if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !wrap.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !wrap.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+  };
   wrap.addEventListener('mousedown', e => { if (e.target === wrap) close(); });
   wrap.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
   document.addEventListener('keydown', onKey); document.body.append(wrap);
   const el = $('.modal-body', wrap); onMount?.(el, close);
-  setTimeout(() => (el.querySelector('[autofocus]') || el.querySelector('input,select,textarea,button'))?.focus(), 30);
+  setTimeout(() => (el.querySelector('[autofocus]') || el.querySelector('input,select,textarea,button') || wrap.querySelector('[data-close]'))?.focus(), 30);
   return { el, close };
 }
 export function confirmDlg(title, text, ok = 'Підтвердити', danger = false) {

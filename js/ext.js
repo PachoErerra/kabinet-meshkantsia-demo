@@ -71,14 +71,16 @@ export const weather = () => cached('weather', 15 * 60000, async () => {
 
 // ---------- якість повітря ----------
 export function aqiLevel(v) {
-  if (v == null) return { text: 'Немає даних', color: '#8a94a6', cls: 'na' };
-  if (v <= 50) return { text: 'Добра', color: '#2e9e5b', cls: 'good' };
-  if (v <= 100) return { text: 'Помірна', color: '#d6a400', cls: 'mod' };
-  if (v <= 150) return { text: 'Шкідлива для чутливих груп', color: '#e67e22', cls: 'usg' };
-  if (v <= 200) return { text: 'Шкідлива', color: '#d64545', cls: 'bad' };
-  if (v <= 300) return { text: 'Дуже шкідлива', color: '#8e44ad', cls: 'vbad' };
-  return { text: 'Небезпечна', color: '#7b1e2b', cls: 'haz' };
+  // fg підібрано так, щоб цифра на позначці мала контраст не нижче 4.5:1
+  if (v == null) return { text: 'Немає даних', color: '#667085', fg: '#fff', cls: 'na' };
+  if (v <= 50) return { text: 'Добра', color: '#1f7a45', fg: '#fff', cls: 'good' };
+  if (v <= 100) return { text: 'Помірна', color: '#e3b000', fg: '#1d1600', cls: 'mod' };
+  if (v <= 150) return { text: 'Шкідлива для чутливих груп', color: '#ee8a2c', fg: '#1d1000', cls: 'usg' };
+  if (v <= 200) return { text: 'Шкідлива', color: '#c93434', fg: '#fff', cls: 'bad' };
+  if (v <= 300) return { text: 'Дуже шкідлива', color: '#8e44ad', fg: '#fff', cls: 'vbad' };
+  return { text: 'Небезпечна', color: '#7b1e2b', fg: '#fff', cls: 'haz' };
 }
+export const aqiStyle = v => { const l = aqiLevel(v); return `background:${l.color};color:${l.fg}`; };
 export const air = () => cached('air', 10 * 60000, async () => {
   let stations = [];
   try {

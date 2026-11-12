@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Тести — Кабінет мешканця Дніпра</title>
+<link rel="stylesheet" href="../docs/docs.css"><style>.r{padding:6px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline}.r small{color:var(--muted);margin-left:auto;white-space:nowrap}.e{color:#c93434;font-size:13px;display:block}</style></head>
+<body><main><p><a href="../">← До кабінету</a></p><h1>Тести контракту API</h1><p class="lead" id="sum">Виконуються…</p><div id="list"></div></main>
+<script type="module">
+import { run } from './api-tests.js';
+const list = document.getElementById('list'), sum = document.getElementById('sum');
+const res = await run((r, i, n) => { list.insertAdjacentHTML('beforeend', `<div class="r"><span class="b ${r.ok ? 'ok' : 'no'}">${r.ok ? 'OK' : 'ПОМИЛКА'}</span><span>${r.name.replace(/</g, '&lt;')}${r.err ? `<span class="e">${r.err.replace(/</g, '&lt;')}</span>` : ''}</span><small>${r.ms} мс</small></div>`); sum.textContent = `Виконано ${i} з ${n}…`; });
+const bad = res.filter(r => !r.ok).length; sum.textContent = bad ? `Не пройшло ${bad} з ${res.length}` : `Пройдено всі тести: ${res.length}`;
+window.__results = res;
+</script></body></html>

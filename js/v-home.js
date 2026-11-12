@@ -33,7 +33,7 @@ export async function homeView(root, ctx) {
     box.innerHTML = `<h2>${icon('sun')} Екологія</h2>
       ${W ? `<a class="eco-now" href="#/weather"><span class="wx">${W.now.cond.icon}</span><div><b class="t">${fmt.temp(W.now.temp)}</b><span>${esc(W.now.cond.text)}, відчувається як ${fmt.temp(W.now.feels)}</span></div>${icon('right')}</a>
         <div class="stats">${cell('Вологість', fmt.num(W.now.humidity) + '%')}${cell('Тиск', ext.hPaToMm(W.now.pressure) + ' мм')}${cell('Вітер', fmt.num(W.now.wind, 1) + ' м/с')}${cell('Схід / захід', W.days[0].sunrise + ' / ' + W.days[0].sunset)}</div>` : '<p class="muted">Погода тимчасово недоступна.</p>'}
-      ${A ? `<a class="aqi-row" href="#/air"><span class="aqi-badge" style="background:${lv.color}">${A.avg}</span><div><b>Якість повітря: ${lv.text.toLowerCase()}</b><span>Середній індекс AQI по місту${A.stations.length ? ', датчиків: ' + A.stations.length : ''}</span></div>${icon('right')}</a>` : '<p class="muted">Дані про якість повітря тимчасово недоступні.</p>'}`;
+      ${A ? `<a class="aqi-row" href="#/air"><span class="aqi-badge" style="${ext.aqiStyle(A.avg)}">${A.avg}</span><div><b>Якість повітря: ${lv.text.toLowerCase()}</b><span>Середній індекс AQI по місту${A.stations.length ? ', датчиків: ' + A.stations.length : ''}</span></div>${icon('right')}</a>` : '<p class="muted">Дані про якість повітря тимчасово недоступні.</p>'}`;
   });
 
   // --- фінанси ---
@@ -123,21 +123,20 @@ export async function weatherView(root) {
 export async function airView(root, ctx) {
   const A = await ext.air(); const lv = ext.aqiLevel(A.avg);
   root.innerHTML = pageHead('Якість повітря', '#/home') + `
-    <section class="card aqi-top"><span class="aqi-badge big" style="background:${lv.color}">${A.avg}</span><div><b>Середній індекс якості повітря (AQI) у місті зараз</b><p>${lv.text}. ${esc(A.source)}.</p></div></section>
+    <section class="card aqi-top"><span class="aqi-badge big" style="${ext.aqiStyle(A.avg)}">${A.avg}</span><div><b>Середній індекс якості повітря (AQI) у місті зараз</b><p>${lv.text}. ${esc(A.source)}.</p></div></section>
     <div class="map-layout"><div class="card map-card"><div id="airmap" class="map" role="application" aria-label="Мапа датчиків якості повітря"></div><div class="legend">${[[25, '0–50'], [75, '51–100'], [125, '101–150'], [175, '151–200'], [250, '201+']].map(([v, t]) => `<span><i style="background:${ext.aqiLevel(v).color}"></i>${t}</span>`).join('')}</div></div>
-    <aside class="card side"><div id="st-detail">${A.stations.length ? '<p class="muted">Оберіть датчик на мапі або в списку.</p>' : '<p class="muted">Датчики зараз недоступні, показано модельне значення по місту.</p>'}</div><div class="st-list">${A.stations.slice().sort((a, b) => b.aqi - a.aqi).map(s => `<button class="st" data-act="st" data-id="${esc(s.id)}"><span class="aqi-badge sm" style="background:${ext.aqiLevel(s.aqi).color}">${s.aqi}</span><span>${esc(s.name)}${s.street && s.street.trim().toLowerCase() !== s.name.trim().toLowerCase() ? `<small>${esc(s.street)}</small>` : ''}</span></button>`).join('')}</div></aside></div>`;
+    <aside class="card side"><div id="st-detail">${A.stations.length ? '<p class="muted">Оберіть датчик на мапі або в списку.</p>' : '<p class="muted">Датчики зараз недоступні, показано модельне значення по місту.</p>'}</div><div class="st-list">${A.stations.slice().sort((a, b) => b.aqi - a.aqi).map(s => `<button class="st" data-act="st" data-id="${esc(s.id)}"><span class="aqi-badge sm" style="${ext.aqiStyle(s.aqi)}">${s.aqi}</span><span>${esc(s.name)}${s.street && s.street.trim().toLowerCase() !== s.name.trim().toLowerCase() ? `<small>${esc(s.street)}</small>` : ''}</span></button>`).join('')}</div></aside></div>`;
   const marks = {}; let M = null;
   const show = id => {
     const s = A.stations.find(x => x.id === id); if (!s) return; const l = ext.aqiLevel(s.aqi);
-    $('#st-detail', root).innerHTML = `<h3>${esc(s.name)}</h3><p class="muted">${esc(s.street)} · ${esc(s.platform || '')}</p><div class="row gap"><span class="aqi-badge" style="background:${l.color}">${s.aqi}</span><b>${l.text}</b></div><div class="stats">${cell('PM2.5', fmt.num(s.pm25, 1), 'мкг/м³')}${cell('PM10', fmt.num(s.pm10, 1), 'мкг/м³')}${cell('Темп.', s.temp != null ? fmt.temp(s.temp) : '—')}${cell('Вологість', s.humidity ? fmt.num(s.humidity) + '%' : '—')}</div><p class="muted sm">Оновлено: ${s.time ? fmt.dt(s.time) : '—'}</p>`;
+    $('#st-detail', root).innerHTML = `<h3>${esc(s.name)}</h3><p class="muted">${esc(s.street)} · ${esc(s.platform || '')}</p><div class="row gap"><span class="aqi-badge" style="${ext.aqiStyle(s.aqi)}">${s.aqi}</span><b>${l.text}</b></div><div class="stats">${cell('PM2.5', fmt.num(s.pm25, 1), 'мкг/м³')}${cell('PM10', fmt.num(s.pm10, 1), 'мкг/м³')}${cell('Темп.', s.temp != null ? fmt.temp(s.temp) : '—')}${cell('Вологість', s.humidity ? fmt.num(s.humidity) + '%' : '—')}</div><p class="muted sm">Оновлено: ${s.time ? fmt.dt(s.time) : '—'}</p>`;
     if (M) { M.map.setView([s.lat, s.lon], Math.max(M.map.getZoom(), 13)); marks[id]?.openTooltip(); }
   };
   acts(root, { st: el => show(el.dataset.id) });
   try {
     M = await makeMap($('#airmap', root)); ctx.onLeave(() => M.map.remove());
     for (const s of A.stations) {
-      const c = ext.aqiLevel(s.aqi).color;
-      marks[s.id] = M.L.marker([s.lat, s.lon], { icon: M.L.divIcon({ className: '', html: `<div class="aqi-pin" style="background:${c}">${s.aqi}</div>`, iconSize: [34, 34], iconAnchor: [17, 17] }), title: s.name, keyboard: true }).addTo(M.map).bindTooltip(esc(s.name)).on('click', () => show(s.id));
+      marks[s.id] = M.L.marker([s.lat, s.lon], { icon: M.L.divIcon({ className: '', html: `<div class="aqi-pin" style="${ext.aqiStyle(s.aqi)}">${s.aqi}</div>`, iconSize: [34, 34], iconAnchor: [17, 17] }), title: s.name, keyboard: true }).addTo(M.map).bindTooltip(esc(s.name)).on('click', () => show(s.id));
     }
   } catch (e) { $('#airmap', root).innerHTML = empty('Мапу не вдалося завантажити.', esc(e.message)); }
 }

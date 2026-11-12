@@ -43,7 +43,7 @@ export async function mapsView(root, ctx) {
   } catch (e) { $('#citymap', root).innerHTML = empty('Мапу не вдалося завантажити.', esc(e.message)); }
 }
 
-const ST = { 'Виконано': 'ok', 'Оплачено': 'ok', 'Заплановано': 'info', 'Скасовано': 'mute' };
+const ST = { 'Виконано': 'ok', 'Оплачено': 'ok', 'Заплановано': 'info', 'Відбувся': 'ok', 'Скасовано': 'mute' };
 export async function requestsView(root) {
   const list = await api.requests(session.token); const types = { medical: 'med', parking: 'car', auth: 'shield' };
   root.innerHTML = pageHead('Звернення та документи') + (list.length ? `<div class="stack">${list.map(r => `<article class="card req"><div class="row gap top"><span class="svc-ic sm">${icon(types[r.type] || 'doc')}</span><div class="grow"><b>${esc(r.title)}</b><small class="muted">№ ${esc(r.no)} · ${fmt.dt(r.createdAt)}</small></div><span class="tag st-${ST[r.status] || 'info'}">${esc(r.status)}</span></div>
