@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кабінет мешканця Дніпра — демо</title>
+<meta name="description" content="Демонстраційний прототип вебкабінету мешканця: міські сервіси, графіки відключень, паркування, медичний кабінет.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1657d9">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="demo-bar">Демонстраційний прототип, не офіційний сервіс міської ради. Дані АС ВВО МР емулюються у вашому браузері · <a href="#/emulator">Панель емулятора</a> · <a href="docs/vidpovidnist-tz.html">Відповідність ТЗ</a></div>
+<div id="app">
+  <aside id="nav"></aside>
+  <main id="view" tabindex="-1"></main>
+  <nav id="tabbar" aria-label="Основна навігація"></nav>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<noscript><p style="padding:24px">Для роботи кабінету потрібен JavaScript.</p></noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
